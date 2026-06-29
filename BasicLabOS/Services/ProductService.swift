@@ -26,7 +26,7 @@ struct ProductService {
         )
 
         let response: PaginatedData<ProductListItemDTO> = try await client.request(
-            path: "/api/v1/basiclab/products/list",
+            path: "/api/v1/owned/products/list",
             method: .post,
             body: body,
             auth: .bearer(accessToken)

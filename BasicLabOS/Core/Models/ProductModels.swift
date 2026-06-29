@@ -25,7 +25,7 @@ struct ProductListItemDTO: Decodable {
         let seriesName: String?
     }
 
-    let myProductId: Int?
+    let ownedProductId: Int?
     let productUid: String?
     let productCode: String?
     let productName: String?
@@ -67,8 +67,8 @@ struct ProductListItemDTO: Decodable {
     }
 
     private var resolvedID: String? {
-        if let myProductId {
-            return String(myProductId)
+        if let ownedProductId {
+            return String(ownedProductId)
         }
         if let productUid = productUid?.trimmingCharacters(in: .whitespacesAndNewlines), !productUid.isEmpty {
             return productUid

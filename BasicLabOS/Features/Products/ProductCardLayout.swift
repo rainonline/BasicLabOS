@@ -3,8 +3,8 @@ import SwiftUI
 enum ProductCardLayout {
     static let compactColumnCount = 2
     static let regularMinimumColumnWidth: CGFloat = 200
-    static let gridSpacing: CGFloat = 14
-    static let rowSpacing: CGFloat = 14
+    static let gridSpacing: CGFloat = 16
+    static let rowSpacing: CGFloat = 16
 
     static func columns(for horizontalSizeClass: UserInterfaceSizeClass?) -> [GridItem] {
         if horizontalSizeClass == .regular {
@@ -21,5 +21,5 @@ enum ProductCardLayout {
         horizontalSizeClass == .regular ? 24 : 16
     }
 
-    static let skeletonHeight: CGFloat = 236
+    static let skeletonHeight: CGFloat = 248
 }

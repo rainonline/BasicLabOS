@@ -36,6 +36,8 @@ struct ProductListView: View {
     @ViewBuilder
     private func content(viewModel: ProductListViewModel) -> some View {
         mainContent(viewModel: viewModel)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(CatalogSurfaceStyle.canvas)
             .refreshable {
                 await viewModel.refresh()
             }
@@ -85,6 +87,7 @@ struct ProductListView: View {
                         .padding(.vertical, 16)
                 }
             }
+            .catalogCanvasBackground()
             .contentMargins(.horizontal, horizontalPadding, for: .scrollContent)
             .contentMargins(.vertical, 8, for: .scrollContent)
         }
@@ -98,13 +101,15 @@ struct ProductListView: View {
                 spacing: ProductCardLayout.rowSpacing
             ) {
                 ForEach(0 ..< 6, id: \.self) { _ in
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(.quaternary.opacity(0.35))
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(CatalogSurfaceStyle.card)
+                        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                         .frame(minWidth: 0, maxWidth: .infinity)
                         .frame(height: ProductCardLayout.skeletonHeight)
                 }
             }
         }
+        .catalogCanvasBackground()
         .contentMargins(.horizontal, horizontalPadding, for: .scrollContent)
         .contentMargins(.vertical, 8, for: .scrollContent)
     }

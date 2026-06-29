@@ -4,45 +4,34 @@ struct ProductCardView: View {
     let product: Product
     let categoryLabel: String?
 
-    private let mediaCornerRadius: CGFloat = 12
-    private let cardCornerRadius: CGFloat = 16
-    /// 图片 / 标题 / 内容区 / 价签 之间的统一间距
-    private let sectionSpacing: CGFloat = 6
-    /// 内容区内部（编码、meta）行距
-    private let contentLineSpacing: CGFloat = 2
+    private let cardCornerRadius: CGFloat = 18
+    private let cardPadding: CGFloat = 10
+    /// 同心圆角：内层半径 = 外层 − 内边距
+    private var mediaCornerRadius: CGFloat { cardCornerRadius - cardPadding }
+    private let sectionSpacing: CGFloat = 8
+    private let contentLineSpacing: CGFloat = 3
+    private let mediaBadgeInset: CGFloat = 8
 
     var body: some View {
         VStack(alignment: .leading, spacing: sectionSpacing) {
             mediaSection
-            titleText
-            contentSection
+            textSection
             priceRow
         }
-        .padding(8)
+        .padding(cardPadding)
         .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background {
             RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
-                .fill(.regularMaterial)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
-                .strokeBorder(.quaternary, lineWidth: 0.5)
+                .fill(CatalogSurfaceStyle.card)
+                .shadow(color: .black.opacity(0.07), radius: 5, x: 0, y: 2)
         }
         .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
     }
 
-    private var titleText: some View {
-        Text(product.name)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.primary)
-            .lineLimit(2)
-            .truncationMode(.tail)
-            .multilineTextAlignment(.leading)
-            .frame(maxWidth: .infinity, alignment: .topLeading)
-    }
-
-    private var contentSection: some View {
+    private var textSection: some View {
         VStack(alignment: .leading, spacing: contentLineSpacing) {
+            titleText
+
             Text(
                 ProductCardFormatter.subtitle(
                     productCode: product.productCode,
@@ -51,31 +40,54 @@ struct ProductCardView: View {
             )
             .font(.caption2)
             .foregroundStyle(.secondary)
+            .monospacedDigit()
             .lineLimit(1)
-            .truncationMode(.tail)
+            .truncationMode(.middle)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Text(metaLineText)
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-                .opacity(metaLineText.isEmpty ? 0 : 1)
-                .lineLimit(2)
-                .truncationMode(.tail)
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity, alignment: .topLeading)
+            if !metaLineText.isEmpty {
+                Text(metaLineText)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary.opacity(0.78))
+                    .lineLimit(2)
+                    .truncationMode(.tail)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+            }
         }
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
     }
 
+    private var titleText: some View {
+        Text(product.name)
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.primary)
+            .lineLimit(2)
+            .lineSpacing(1)
+            .truncationMode(.tail)
+            .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+
+    @ViewBuilder
     private var priceRow: some View {
-        HStack {
-            Text(PriceFormatter.formatCny(product.price))
-                .font(.caption2.weight(.semibold))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .glassEffect(.regular, in: .capsule)
+        HStack(alignment: .firstTextBaseline) {
+            if PriceFormatter.hasPrice(product.price) {
+                Text(PriceFormatter.formatCny(product.price))
+                    .font(.caption.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(.primary)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 4)
+                    .glassEffect(.regular, in: .capsule)
+            } else {
+                Text("未提供")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
             Spacer(minLength: 0)
         }
+        .padding(.top, 1)
     }
 
     private var metaLineText: String {
@@ -115,8 +127,12 @@ struct ProductCardView: View {
                             }
                         }
                     }
-                    .padding(6)
+                    .padding(mediaBadgeInset)
                 }
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: mediaCornerRadius, style: .continuous)
+                    .strokeBorder(.quaternary.opacity(0.55), lineWidth: 0.5)
             }
             .clipShape(RoundedRectangle(cornerRadius: mediaCornerRadius, style: .continuous))
     }
@@ -131,6 +147,7 @@ struct ProductCardView: View {
                 case let .success(image):
                     image
                         .resizable()
+                        .transition(.opacity)
                 case .failure:
                     imagePlaceholder
                 @unknown default:
@@ -144,10 +161,11 @@ struct ProductCardView: View {
 
     private var imagePlaceholder: some View {
         ZStack {
-            Color.secondary.opacity(0.12)
+            Color(.secondarySystemFill)
             Image(systemName: "photo")
-                .font(.title3)
-                .foregroundStyle(.tertiary)
+                .font(.title3.weight(.light))
+                .foregroundStyle(.quaternary)
+                .symbolRenderingMode(.hierarchical)
         }
     }
 }

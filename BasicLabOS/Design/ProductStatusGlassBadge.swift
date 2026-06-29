@@ -4,12 +4,12 @@ struct ProductStatusGlassBadge: View {
     let status: String
 
     var body: some View {
-        Text(status)
+        Text(ProductStatusLabel.displayName(for: status))
             .font(.caption2.weight(.medium))
-            .foregroundStyle(.primary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .glassEffect(.regular, in: .capsule)
+            .foregroundStyle(.white)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
+            .glassEffect(.regular.tint(.black.opacity(0.55)), in: .capsule)
     }
 }
 
@@ -17,9 +17,9 @@ struct FeaturedGlassBadge: View {
     var body: some View {
         Text("推荐")
             .font(.caption2.weight(.semibold))
-            .foregroundStyle(.primary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+            .foregroundStyle(.white)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
             .glassEffect(.regular.tint(.orange), in: .capsule)
     }
 }
