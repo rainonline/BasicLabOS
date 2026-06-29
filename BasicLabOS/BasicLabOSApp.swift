@@ -1,17 +1,13 @@
-//
-//  BasicLabOSApp.swift
-//  BasicLabOS
-//
-//  Created by 郝雨 on 2026/6/30.
-//
-
 import SwiftUI
 
 @main
 struct BasicLabOSApp: App {
+    @State private var authStore = AuthSessionStore(authService: AuthService())
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(authStore)
         }
     }
 }
