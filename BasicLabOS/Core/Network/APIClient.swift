@@ -31,10 +31,11 @@ struct APIClient {
     func request<Response: Decodable>(
         path: String,
         method: HTTPMethod = .get,
+        query: [String: String]? = nil,
         body: (any Encodable)? = nil,
         auth: APIAuth = .none
     ) async throws -> Response {
-        let url = try resolveURL(path: path)
+        let url = try resolveURL(path: path, query: query)
         var request = URLRequest(url: url, timeoutInterval: timeout)
         request.httpMethod = method.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -105,13 +106,32 @@ struct APIClient {
         throw APIClientError.contractMismatch("服务器返回了无法识别的响应。")
     }
 
-    private func resolveURL(path: String) throws -> URL {
+    private func resolveURL(path: String, query: [String: String]? = nil) throws -> URL {
+        let base: URL
         if let url = URL(string: path), url.scheme != nil {
-            return url
+            base = url
+        } else {
+            let normalized = path.hasPrefix("/") ? String(path.dropFirst()) : path
+            base = baseURL.appending(path: normalized)
         }
 
-        let normalized = path.hasPrefix("/") ? String(path.dropFirst()) : path
-        return baseURL.appending(path: normalized)
+        guard let query, !query.isEmpty else {
+            return base
+        }
+
+        guard var components = URLComponents(url: base, resolvingAgainstBaseURL: false) else {
+            throw APIClientError.contractMismatch("无法构造请求 URL。")
+        }
+
+        components.queryItems = query
+            .sorted { $0.key < $1.key }
+            .map { URLQueryItem(name: $0.key, value: $0.value) }
+
+        guard let url = components.url else {
+            throw APIClientError.contractMismatch("无法构造请求 URL。")
+        }
+
+        return url
     }
 }
 

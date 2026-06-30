@@ -37,4 +37,40 @@ struct ProductService {
             hasMore: response.meta.hasMore
         )
     }
+
+    func getProductDetail(productUid: String, accessToken: String) async throws -> ProductDetail {
+        let response: ProductDetailResponse = try await client.request(
+            path: "/api/v1/owned/products/detail",
+            method: .get,
+            query: ["product_uid": productUid],
+            auth: .bearer(accessToken)
+        )
+
+        guard let product = response.product.toProductDetail() else {
+            throw APIClientError.contractMismatch("商品详情数据不完整。")
+        }
+
+        return product
+    }
+
+    func getVariants(ownedProductId: Int, accessToken: String) async throws -> [ProductVariant] {
+        let body = VariantListRequestBody(
+            pagination: PaginationRequest(
+                page: 1,
+                pageSize: VariantListConstants.pageSize,
+                includeTotal: true
+            ),
+            sort: SortRequest(orderBy: "updated_at", direction: "desc"),
+            filter: VariantListFilter(ownedProductId: ownedProductId, includeDraft: true)
+        )
+
+        let response: PaginatedData<ProductVariantListItemDTO> = try await client.request(
+            path: "/api/v1/owned/variants/list",
+            method: .post,
+            body: body,
+            auth: .bearer(accessToken)
+        )
+
+        return response.items.compactMap { $0.toProductVariant() }
+    }
 }

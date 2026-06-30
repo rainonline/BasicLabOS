@@ -70,14 +70,7 @@ struct ProductListView: View {
                     spacing: ProductCardLayout.rowSpacing
                 ) {
                     ForEach(viewModel.items) { product in
-                        ProductCardView(
-                            product: product,
-                            categoryLabel: viewModel.categoryLabel(for: product)
-                        )
-                        .frame(minWidth: 0, maxWidth: .infinity)
-                        .task {
-                            await viewModel.loadMoreIfNeeded(currentItem: product)
-                        }
+                        productCardLink(for: product, viewModel: viewModel)
                     }
                 }
 
@@ -90,6 +83,32 @@ struct ProductListView: View {
             .catalogCanvasBackground()
             .contentMargins(.horizontal, horizontalPadding, for: .scrollContent)
             .contentMargins(.vertical, 8, for: .scrollContent)
+            .navigationDestination(for: String.self) { productUid in
+                if let token = authStore.accessToken {
+                    ProductDetailView(productUid: productUid, accessToken: token)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func productCardLink(for product: Product, viewModel: ProductListViewModel) -> some View {
+        let card = ProductCardView(
+            product: product,
+            categoryLabel: viewModel.categoryLabel(for: product)
+        )
+        .frame(minWidth: 0, maxWidth: .infinity)
+        .task {
+            await viewModel.loadMoreIfNeeded(currentItem: product)
+        }
+
+        if let navigationUid = product.navigationUid, authStore.accessToken != nil {
+            NavigationLink(value: navigationUid) {
+                card
+            }
+            .buttonStyle(.plain)
+        } else {
+            card
         }
     }
 

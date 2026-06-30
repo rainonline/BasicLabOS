@@ -56,7 +56,16 @@ View → Service → APIClient → basiclab_server
 
 **Main shell** (`MainTabView`): iOS 26 navigation — `TabView` + `.tabViewStyle(.sidebarAdaptable)` + `.tabBarMinimizeBehavior(.onScrollDown)`; each tab uses `NavigationStack` with `.tabRootNavigationStyle()` (`.toolbarTitleDisplayMode(.inlineLarge)`). Scroll content uses `.contentMargins` so system scroll-edge / Liquid Glass toolbar effects work. Logout UI deferred to future「我的」tab; search UI removed (restore later via `.searchable()` on the product tab).
 
-**Product list**: `POST /api/v1/owned/products/list` (自营 / owned catalog — same as Web `/products` card mode). No detail navigation in v1.
+**Product list**: `POST /api/v1/owned/products/list` (自营 / owned catalog — same as Web `/products` card mode).
+
+**Product detail** (v1 core): tap card → `ProductDetailView` via `NavigationLink` keyed on `product_uid`.
+
+| API | Path |
+|-----|------|
+| Detail | `GET /api/v1/owned/products/detail?product_uid=` |
+| Variants | `POST /api/v1/owned/variants/list` (`filter.owned_product_id`, `include_draft: true`) |
+
+Detail sections align with Web `ProductDetailsPage`: 商品信息 / 内容与合规 / 销售运营 / 备注与时间 / 扩展属性 / 规格列表. Not in v1: variant sub-detail, media gallery, PIM attribute template labels.
 
 ### Product card fields (aligned with Web `ProductCatalogCard`)
 

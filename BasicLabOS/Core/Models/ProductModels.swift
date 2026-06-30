@@ -14,6 +14,17 @@ struct Product: Identifiable, Hashable {
     let price: Double?
 }
 
+extension Product {
+    /// 详情路由键：优先 `product_uid`，与后端 `GET …/products/detail` 一致。
+    var navigationUid: String? {
+        if let uid = productUid?.trimmingCharacters(in: .whitespacesAndNewlines), !uid.isEmpty {
+            return uid
+        }
+        let fallback = id.trimmingCharacters(in: .whitespacesAndNewlines)
+        return fallback.isEmpty ? nil : fallback
+    }
+}
+
 struct ProductListItemDTO: Decodable {
     private struct BrandRef: Decodable {
         let brandCode: String?
